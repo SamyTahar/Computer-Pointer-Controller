@@ -19,3 +19,6 @@ class MouseController:
 
     def move(self, x, y):
         pyautogui.moveRel(x*self.precision, -1*y*self.precision, duration=self.speed)
+
+    def getCurrentMousePosition(self):
+        return pyautogui.position()

@@ -20,7 +20,11 @@ class InputFeeder:
         self.input_type=input_type
         if input_type=='video' or input_type=='image':
             self.input_file=input_file
-    
+
+        self.initial_w = None
+        self.initial_h = None
+
+            
     def load_data(self):
         if self.input_type=='video':
             self.cap=cv2.VideoCapture(self.input_file)
@@ -28,6 +32,14 @@ class InputFeeder:
             self.cap=cv2.VideoCapture(0)
         else:
             self.cap=cv2.imread(self.input_file)
+        
+        self.initial_w = int(self.cap.get(3))
+        self.initial_h = int(self.cap.get(4))
+
+        return self.cap
+
+    def get_input_size(self):
+        return  self.initial_w, self.initial_h
 
     def next_batch(self):
         '''
@@ -39,6 +51,13 @@ class InputFeeder:
                 _, frame=self.cap.read()
             yield frame
 
+    def save_to_video(self, frame):
+        
+        self.fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        self.out = cv2.VideoWriter('output.mp4',self.fourcc, 20.0, (self.initial_w,self.initial_h))
+    
+        return self.out.write(frame) 
+
 
     def close(self):
         '''
@@ -46,4 +65,5 @@ class InputFeeder:
         '''
         if not self.input_type=='image':
             self.cap.release()
+            self.out.release()
 

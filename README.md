@@ -5,8 +5,25 @@
 ## Project Set Up and Installation
 *TODO:* Explain the setup procedures to run your project. For instance, this can include your project directory structure, the models you need to download and where to place them etc. Also include details about how to install the dependencies your project requires.
 
+### Export env variable
+export OPENVINO_ZOO_TOOL="/opt/intel/openvino/deployment_tools/open_model_zoo/tools/"
+
+### download model 
+python $OPENVINO_ZOO_TOOL/downloader/downloader.py --name face-detection-adas-binary-0001
+
+python $OPENVINO_ZOO_TOOL/downloader/downloader.py --name face-detection-adas-0001 --precisions FP32,FP16,INT8
+
+python $OPENVINO_ZOO_TOOL/downloader/downloader.py --name landmarks-regression-retail-0009 --precisions FP32,FP16,INT8
+
+python $OPENVINO_ZOO_TOOL/downloader/downloader.py --name gaze-estimation-adas-0002 --precisions FP32,FP16,INT8
+
+python $OPENVINO_ZOO_TOOL/downloader/downloader.py --name head-pose-estimation-adas-0001 --precisions FP32,FP16,INT8
+
 ## Demo
 *TODO:* Explain how to run a basic demo of your model.
+
+## CLI command package app
+python deployment_manager.py --targets cpu --user_data /home/workspace --output_dir /home/workspace/vtune_project --archive_name test_name
 
 ## Documentation
 *TODO:* Include any documentation that users might need to better understand your project code. For instance, this is a good place to explain the command line arguments that your project supports.
