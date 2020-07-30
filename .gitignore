@@ -1,4 +1,4 @@
 /__pychache
 .DS_Store
-/models/*
+src/models/*
 output.jpg
