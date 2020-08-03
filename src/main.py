@@ -17,11 +17,9 @@ IMG = "../bin/sam.jpg"
 VIDEO = "../bin/demo.mp4"
 #IMG = "images/retail_image.jpg"
 MODEL_FACE_DETECTION = "models/intel/face-detection-adas-0001/FP16/face-detection-adas-0001"
-MODEL_LANDMARKS = "models/intel/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009"
-MODEL_HEAD_POSE_ESTIMATION = "models/intel/head-pose-estimation-adas-0001/FP32/head-pose-estimation-adas-0001"
-MODEL_GAZE_ESTIMATION = "models/intel/gaze-estimation-adas-0002/FP32/gaze-estimation-adas-0002"
-
-THRESHOLD = 0.8
+MODEL_LANDMARKS = "models/intel/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009"
+MODEL_HEAD_POSE_ESTIMATION = "models/intel/head-pose-estimation-adas-0001/FP16/head-pose-estimation-adas-0001"
+MODEL_GAZE_ESTIMATION = "models/intel/gaze-estimation-adas-0002/FP16/gaze-estimation-adas-0002"
 
 
 def main(args):
@@ -32,13 +30,19 @@ def main(args):
     land_Marks = FaceLandmarks(args.landmarks, args.device)
     head_PoseEstimat = headPoseEstimation(args.head_pose_estimation, args.device)
     gaze_Estimation = gazeEstimation(args.gaze_estimation, args.device)
+
+
+    print(args.path_feed)
+    #init input feeder
+    feed = InputFeeder(input_type=args.input_feed, input_file=args.path_feed)
+    cap = feed.load_data()
+    initial_w, initial_h = feed.get_input_size()
+
+    print(initial_w, initial_h)
+
+    #Facedetection threshold prob from args
+    THRESHOLD = args.prob_threshold
     
-    cap = cv2.VideoCapture(VIDEO)
-
-    initial_w = int(cap.get(3))
-    initial_h = int(cap.get(4))
-
-
     # Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'MP4V')
     out = cv2.VideoWriter('output.mp4',fourcc, 10.0, (initial_w, initial_h))
@@ -58,13 +62,9 @@ def main(args):
 
             #Run facedetection inference
             img_output, confidence, coords_data_crop = face_Detect.get_inference_outputs()
-            #print("coords_data_crop: ",coords_data_crop)
-            #print("confidence: ",confidence ,"THRESHOLD: ",THRESHOLD)
-            #print(img_output.shape)
-
-
+    
             if confidence >= THRESHOLD:
-                #print("inference started ")
+                
                 cropped_frame, cropped_h, cropped_w = face_Detect.crop_frame(
                                                     img_output, 
                                                     coords_data_crop[0],
@@ -74,8 +74,6 @@ def main(args):
                 
                 land_Marks.set_params(cropped_frame, cropped_h, cropped_w)
                 frame, img_left_eye, img_right_eye, left_eye_center , right_eye_center = land_Marks.get_inference_outputs()
-
-                print(img_left_eye.shape, img_right_eye.shape)
                     
                 head_PoseEstimat.set_params(cropped_frame, cropped_w, cropped_h)
                 img_output ,head_pose_angles = head_PoseEstimat.get_inference_outputs()
@@ -87,9 +85,14 @@ def main(args):
                 #eyes_concat = np.concatenate((img_left_eye,img_right_eye), axis=0)
                 #eyes_concat_resized = cv2.resize(eyes_concat,(cropped_frame.shape[1] -200 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
                 #eyes_crop_out = np.concatenate((cropped_frame, eyes_concat_resized), axis=1)
-                original_frame = cv2.resize(original_frame,(cropped_frame.shape[1] +400 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
-                
-                img_output = np.concatenate((original_frame,cropped_frame), axis=1)
+                #display_visual = True
+               
+        
+                if args.display_visual == True:
+                    original_frame = cv2.resize(original_frame,(cropped_frame.shape[1] +400 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
+                    img_output = np.concatenate((original_frame,cropped_frame), axis=1)
+                else: 
+                    img_output = original_frame    
                 ######
 
                 #width, height = mouse_controller.getScreenSize()
@@ -99,7 +102,7 @@ def main(args):
                 
                 #cv2.imwrite("output.jpg", image_output_gaze)
                 #out.write(img_output)
-
+        
                 cv2.imshow('frame',img_output)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
@@ -145,8 +148,11 @@ def build_argparser():
     parser.add_argument("-m4", "--gaze_estimation", required=False, type=str, default=MODEL_GAZE_ESTIMATION,
                         help="Path to your Gaze estimation model with a trained model.")
 
-    #parser.add_argument("-i", "--input", required=False, type=str, default=INPUT_STREAM,
-    #                    help="Path to image or video file")
+    parser.add_argument("-i", "--input_feed", required=False, type=str, default='video',
+                        help="select your type of feed image, video file or use \"cam\" keyword to use your webcam ")
+    
+    parser.add_argument("-pf", "--path_feed", required=False, type=str, default=VIDEO,
+                        help="select your image path if you have set your input to image or video path if you have set your input to video")
 
     parser.add_argument("-d", "--device", type=str, default="CPU",
                         help="Specify the target device to infer on: "
@@ -157,6 +163,10 @@ def build_argparser():
     parser.add_argument("-pt", "--prob_threshold", type=float, default=0.8,
                         help="Probability threshold for detections filtering"
                         "(0.8 by default)")
+    
+    parser.add_argument("-dis", "--display_visual", type=bool, default=False,
+                        help="Display marks and head position for debug purpose | Value \"True\" display on \"False\" display off")
+
     return parser
 
 if __name__ == '__main__':
@@ -164,14 +174,3 @@ if __name__ == '__main__':
 
     args = build_argparser().parse_args()
     main(args)
-
-
-
-
-
-
-
-
-
-#run.display_supported_layer()
-#run.launch_cam()
