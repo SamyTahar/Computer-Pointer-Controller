@@ -42,3 +42,18 @@ If you have used Async Inference in your code, benchmark the results and explain
 
 ### Edge Cases
 There will be certain situations that will break your inference flow. For instance, lighting changes or multiple people in the frame. Explain some of the edge cases you encountered in your project and how you solved them to make your project more robust.
+
+### Mac troubleshooting 
+- If the the frame is not display on a windows when you are calling cv2.imshow and you get this error :
+
+"You might be loading two sets of Qt binaries into the same process. Check that all plugins are compiled against the right Qt binaries. Export DYLD_PRINT_LIBRARIES=1 and check that only one set of binaries are being loaded.
+qt.qpa.plugin: Could not load the Qt platform plugin "cocoa" in "" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: cocoa, minimal, offscreen."
+
+try to install : pip install opencv-python-headless in your python env
+
+- If your mouse is not moving check the Security Preferences > Security & Privacy > Privacy > Accessibility and grant your terminal.
+
+Nb: Accessibility is the panel on the left hand side on the Privacy tab.
