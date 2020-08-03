@@ -165,7 +165,7 @@ def build_argparser():
                         "(0.8 by default)")
     
     parser.add_argument("-dis", "--display_visual", type=bool, default=False,
-                        help="Display marks and head position for debug purpose | Value \"True\" display on \"False\" display off")
+                        help="Display marks and head position for debug purpose | Value True display on False display off (bool type keep capitals)")
 
     return parser
 
