@@ -7,9 +7,9 @@ import utils
 
 class FaceLandmarks(Model):
 
-    def __init__(self, MODEL_PATH):
+    def __init__(self, MODEL_PATH, DEVICE):
 
-        self.model_loaded = Model(MODEL_PATH)
+        self.model_loaded = Model(MODEL_PATH, DEVICE)
         self.model_loaded.get_unsupported_layer()
 
         self.frame = None

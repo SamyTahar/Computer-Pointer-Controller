@@ -6,9 +6,9 @@ import math as m
 
 class gazeEstimation():
 
-    def __init__(self, MODEL_PATH):
+    def __init__(self, MODEL_PATH, DEVICE):
         #super().__init__()
-        self.model_loaded = Model(MODEL_PATH)
+        self.model_loaded = Model(MODEL_PATH, DEVICE)
         self.model_loaded.get_unsupported_layer()
 
         self.left_eyes_frame = None
