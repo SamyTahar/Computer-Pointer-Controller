@@ -28,6 +28,37 @@ python deployment_manager.py --targets cpu --user_data /home/workspace --output_
 ## Documentation
 *TODO:* Include any documentation that users might need to better understand your project code. For instance, this is a good place to explain the command line arguments that your project supports.
 
+optional arguments:
+  -h, --help            show this help message and exit
+  -m1 FACE_DETECTION, --face_detection FACE_DETECTION
+                        Path to your Face Detection model with a trained
+                        model.
+  -m2 LANDMARKS, --landmarks LANDMARKS
+                        Path to your Land Marks model with a trained model.
+  -m3 HEAD_POSE_ESTIMATION, --head_pose_estimation HEAD_POSE_ESTIMATION
+                        Path to your Head Pose Estimation model with a trained
+                        model.
+  -m4 GAZE_ESTIMATION, --gaze_estimation GAZE_ESTIMATION
+                        Path to your Gaze estimation model with a trained
+                        model.
+  -i INPUT_FEED, --input_feed INPUT_FEED
+                        select your type of feed image, video file or use
+                        "cam" keyword to use your webcam
+  -pf PATH_FEED, --path_feed PATH_FEED
+                        select your image path if you have set your input to
+                        image or video path if you have set your input to
+                        video
+  -d DEVICE, --device DEVICE
+                        Specify the target device to infer on: CPU, GPU, FPGA
+                        or MYRIAD is acceptable. Sample will look for a
+                        suitable plugin for device specified (CPU by default)
+  -pt PROB_THRESHOLD, --prob_threshold PROB_THRESHOLD
+                        Probability threshold for detections filtering(0.8 by
+                        default)
+  -dis DISPLAY_VISUAL, --display_visual DISPLAY_VISUAL
+                        Display marks and head position for debug purpose |
+                        Value True display on False display off (bool type keep capitals)
+
 ## Benchmarks
 *TODO:* Include the benchmark results of running your model on multiple hardwares and multiple model precisions. Your benchmarks can include: model loading time, input/output processing time, model inference time etc.
 
