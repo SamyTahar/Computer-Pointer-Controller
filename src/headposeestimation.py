@@ -17,6 +17,8 @@ class headPoseEstimation():
         self.initial_h = None
         self.frame = None
 
+        self.image_input_shape = self.model_loaded.get_input_shape()
+
     def input_blobs(self):
 
         print(self.model_loaded.get_input_blob())
@@ -45,10 +47,8 @@ class headPoseEstimation():
         return frame ,angles 
     
     def preprocess_frame(self, frame):
-        
-        image_input_shape = self.model_loaded.get_input_shape()
 
-        resize_frame = cv2.resize(frame, (image_input_shape[0][3], image_input_shape[0][2]), interpolation=cv2.INTER_AREA)
+        resize_frame = cv2.resize(frame, (self.image_input_shape[0][3], self.image_input_shape[0][2]), interpolation=cv2.INTER_AREA)
         resize_frame = resize_frame.transpose((2,0,1))
         resize_frame = resize_frame.reshape(1, *resize_frame.shape)
 
@@ -72,10 +72,10 @@ class headPoseEstimation():
 
         print(center_point)
 
-        line_thickness = 5
-        frame = cv2.line(frame, (int(center_point[0]),int(center_point[1])), (int(center_point[0]), 300), (0, 255, 0), thickness=line_thickness)
-        frame = cv2.line(frame, (int(center_point[0]),int(center_point[1])), (700, int(center_point[1])), (0, 0, 255), thickness=line_thickness)
-        frame = cv2.line(frame, (int(center_point[0]),int(center_point[1])), (730, 450), (255, 0, 0), thickness=line_thickness)
+        #line_thickness = 5
+        #frame = cv2.line(frame, (int(center_point[0]),int(center_point[1])), (int(center_point[0]), 300), (0, 255, 0), thickness=line_thickness)
+        #rame = cv2.line(frame, (int(center_point[0]),int(center_point[1])), (700, int(center_point[1])), (0, 0, 255), thickness=line_thickness)
+        #frame = cv2.line(frame, (int(center_point[0]),int(center_point[1])), (730, 450), (255, 0, 0), thickness=line_thickness)
 
         #frame = cv2.line(frame, (x, y), (x, z), (0, 255, 0), thickness=line_thickness)
         

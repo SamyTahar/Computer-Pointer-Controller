@@ -3,20 +3,20 @@ import cv2
 import numpy as np
 from model import Model
 
+import utils
 
 class FaceLandmarks(Model):
 
     def __init__(self, MODEL_PATH):
-        #super().__init__()
+
         self.model_loaded = Model(MODEL_PATH)
         self.model_loaded.get_unsupported_layer()
-        #model_name =  self.model_loaded.get_model_name()
-        #print("log[info]: Model input shape " + model_name +" ", self.model_loaded.get_input_shape())
-        #print("log[info]: Model output shape " + model_name +" ", self.model_loaded.get_output_shape())
 
         self.frame = None
         self.initial_w = None
         self.initial_h = None
+
+        self.image_input_shape = self.model_loaded.get_input_shape()
 
     def input_blobs(self):
 
@@ -34,67 +34,86 @@ class FaceLandmarks(Model):
     def get_inference_outputs(self):
 
         inputs_model = self.input_blobs()
-        prepro_img_face = self.preprocess_frame(self.frame)
+        prepro_img_face = utils.preprocess_frame(utils.check_frame_shape_error(self.frame), self.image_input_shape)
         inputs_to_feed = {inputs_model[0]:prepro_img_face}
         
         points = self.inference(inputs_to_feed)
 
-        img, img_left_eye, img_left_right = self.draw_box_eyes(self.frame ,points,self.initial_h, self.initial_w)
+        frame, coords_data_crop_l, coords_data_crop_r = self.get_box_eyes_points(self.frame, points, self.initial_h, self.initial_w)
         
-        return img, img_left_eye, img_left_right
+        img_left_eye, img_right_eye = self.get_eye_frame_cropped(self.frame, coords_data_crop_l, coords_data_crop_r )
+        
+        left_eye_center, right_eye_center = self.get_eyes_center(points,self.initial_h, self.initial_w)
+
+        return frame, img_left_eye, img_right_eye, left_eye_center , right_eye_center
     
-    def preprocess_frame(self, frame):
-        
-        image_input_shape = self.model_loaded.get_input_shape()
-
-        resize_frame = cv2.resize(frame, (image_input_shape[0][3], image_input_shape[0][2]), interpolation=cv2.INTER_AREA)
-        resize_frame = resize_frame.transpose((2,0,1))
-        resize_frame = resize_frame.reshape(1, *resize_frame.shape)
-
-        return resize_frame
 
     def inference(self, input_data):
         return self.model_loaded.get_infer_output(input_data)
-    
-    def crop_image(self,img, y1,y2,x1,x2):
-        
-        return img[y1:y2, x1:x2]
          
 
-    def draw_box_eyes(self, img, points, initial_w, initial_h):
-        
+    def get_box_eyes_points(self, frame, points, frame_cropped_w, frame_cropped_h):
+   
         points = points['95']
 
         #print("points:", points[0][0])
         for point in points:
-            xl,yl = point[0][0] * initial_w, point[1][0] * initial_h
-            xr,yr = point[2][0] * initial_w, point[3][0] * initial_h
-            xn,yn = point[4][0] * initial_w, point[5][0] * initial_h
+            xl,yl = point[0][0] * frame_cropped_w, point[1][0] * frame_cropped_h
+            xr,yr = point[2][0] * frame_cropped_w, point[3][0] * frame_cropped_h
+            xn,yn = point[4][0] * frame_cropped_w, point[5][0] * frame_cropped_h
 
             # make box for left eye 
-            xlmin = xl-120
-            ylmin = yl-120
-            xlmax = xl+120
-            ylmax = yl+120
+            xlmin = xl-50
+            ylmin = yl-50
+            xlmax = xl+50
+            ylmax = yl+50
             
             # make box for right eye 
-            xrmin = xr-120
-            yrmin = yr-120
-            xrmax = xr+120
-            yrmax = yr+120
-
-            img_left_eye = self.crop_image(img, int(ylmin),int(ylmax),int(xlmin), int(xlmax))
-            img_left_right = self.crop_image(img, int(yrmin),int(yrmax), int(xrmin), int(xrmax))
-
-            #cv2.circle(img,(xl,yl), 10, (0,0,255), -1)
-            #cv2.circle(img,(xr,yr), 10, (0,0,255), -1)
-            #cv2.circle(img,(xn,yn), 10, (0,255,), -1)
+            xrmin = xr-50
+            yrmin = yr-50
+            xrmax = xr+50
+            yrmax = yr+50
 
 
-           
-            #cv2.rectangle(img, (xlmin, ylmin), (xlmax, ylmax), (0, 55, 255), 10)
-            #cv2.rectangle(img, (xrmin, yrmin), (xrmax, yrmax), (0, 55, 255), 10)
+            #cv2.circle(frame,(xl ,yl), 1, (0,0,255), -1)
+            #cv2.circle(frame,(xr,yr), 1, (0,0,255), -1)
+            #cv2.circle(frame,(xn,yn), 1, (0,255,), -1)
 
-            
+            #if xlmin < 0 or ylmin < 0 or xlmax < 0 or ylmax < 0:
+            #    xlmin = xlmin * xlmin
+                # regarder si pour chaque point celui-ci est négatif ou non si oui alors au square sinon rien 
+                
+            #print("lefteye_points",(xlmin, ylmin), (xlmax, ylmax))
+            #cv2.rectangle(frame, (xlmin, ylmin), (xlmax, ylmax), (0, 55, 255), 2)
+            #cv2.rectangle(frame, (xrmin, yrmin), (xrmax, yrmax), (0, 55, 255), 2)
+
+            coords_data_crop_l = int(ylmin), int(ylmax), int(xlmin), int(xlmax)
+            coords_data_crop_r = int(yrmin), int(yrmax), int(xrmin), int(xrmax)
+            #print('coords_data_crop_l: ', coords_data_crop_l)
+            #print('coords_data_crop_r: ', coords_data_crop_r)
+
         
-        return img, img_left_eye, img_left_right
+        return frame, coords_data_crop_l, coords_data_crop_r
+
+    def get_eye_frame_cropped(self,frame, coords_data_crop_l, coords_data_crop_r ):
+        img_left_eye = utils.crop_image(frame, coords_data_crop_l[0],coords_data_crop_l[1],coords_data_crop_l[2], coords_data_crop_l[3])
+        img_right_eye = utils.crop_image(frame, coords_data_crop_r[0],coords_data_crop_r[1],coords_data_crop_r[2], coords_data_crop_r[3])
+
+        return img_left_eye, img_right_eye
+
+
+    def get_eyes_center(self, points,frame_cropped_w, frame_cropped_h):
+        points = points['95']
+
+        #print("points:", points[0][0])
+        for point in points:
+            xl,yl = point[0][0] * frame_cropped_w, point[1][0] * frame_cropped_h
+            xr,yr = point[2][0] * frame_cropped_w, point[3][0] * frame_cropped_h
+            xn,yn = point[4][0] * frame_cropped_w, point[5][0] * frame_cropped_h
+
+
+            left_eye_center = (xl,yl)
+            right_eye_center = (xr,yr)
+
+
+        return left_eye_center, right_eye_center

@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 from model import Model
+import math as m
+import utils
 
 
 class FaceDetection():
@@ -17,15 +19,19 @@ class FaceDetection():
         self.initial_w = None
         self.initial_h = None
         self.coords = None
+        self.threshold = None
+
+        self.image_input_shape = self.model_loaded.get_input_shape()
 
         #print("input_names:", inputs,  "inputs_shape: ",inputs_shape)
         #print("output_names:", outputs, "outputs_shape: ",outputs_shape)
     
         
-    def set_params(self, frame, initial_w, initial_h):
+    def set_params(self, frame, threshold, initial_w, initial_h):
         self.frame = frame
         self.initial_w = initial_w
         self.initial_h = initial_h
+        self.threshold = threshold
 
     def get_inference_outputs(self):
 
@@ -33,11 +39,10 @@ class FaceDetection():
         prepro_img_face = self.preprocess_frame(self.frame)
         inputs_face = {inputs_facedetect[0]:prepro_img_face}
         coords = self.inference(inputs_face)
-        img_output, cropped_image = self.draw_boxes(coords, self.frame, 0.5 , self.initial_w, self.initial_h)
+
+        frame, confidence, coords_data_crop  = self.draw_boxes(coords, self.frame, self.threshold, self.initial_w, self.initial_h)
         
-        cropped_h, cropped_w = cropped_image.shape[:2]
-        
-        return img_output, cropped_image, cropped_w, cropped_h
+        return frame, confidence, coords_data_crop
     
     def input_blobs(self):
         return self.model_loaded.get_input_blob()
@@ -46,10 +51,8 @@ class FaceDetection():
         return self.model_loaded.get_output_blob()    
     
     def preprocess_frame(self, frame):
-        
-        image_input_shape = self.model_loaded.get_input_shape()
-
-        resize_frame = cv2.resize(frame, (image_input_shape[0][3], image_input_shape[0][2]), interpolation=cv2.INTER_AREA)
+        #print("frame_shape: ",frame.shape, "self.image_input_shape[0][3]: ", self.image_input_shape[0][3], "self.image_input_shape[0][2]: ", self.image_input_shape[0][2])
+        resize_frame = cv2.resize(frame, (self.image_input_shape[0][3], self.image_input_shape[0][2]), interpolation=cv2.INTER_AREA)
         resize_frame = resize_frame.transpose((2,0,1))
         resize_frame = resize_frame.reshape(1, *resize_frame.shape)
 
@@ -59,28 +62,35 @@ class FaceDetection():
         
         return self.model_loaded.get_infer_output(input_data)
 
-    def draw_boxes(self, coords, image, threshold , initial_w, initial_h):
+    def draw_boxes(self, coords, frame, threshold , initial_w, initial_h):
         width = initial_w
         height = initial_h
         coords = coords['detection_out']
+        coords_data_crop = []
+        _confidence = 0
             
         for box in coords[0][0]: # Output shape is 1x1x200x7
-            conf = box[2]
+            confidence = box[2]
+          
+            if confidence >= threshold:
+                #print("confidence draw_boxes", confidence)
+                xmin = int(box[3] * width) - 50
+                ymin = int(box[4] * height) - 50
+                xmax = int(box[5] * width) + 50
+                ymax = int(box[6] * height) + 50
 
-            if conf >= threshold:
-                xmin = int(box[3] * width)
-                ymin = int(box[4] * height)
-                xmax = int(box[5] * width)
-                ymax = int(box[6] * height)
+                cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0,0,255), 10)
+                _confidence = confidence
+                coords_data_crop = ymin, ymax, xmin, xmax
 
-                cv2.rectangle(image, (xmin, ymin), (xmax, ymax), (0,0,255), 10)
-
-                croped_image = self.crop_image(image, ymin,ymax, xmin,xmax)
-
-        return image, croped_image 
+        return frame, _confidence, coords_data_crop 
     
     
-    def crop_image(self,img, y1,y2,x1,x2):
+    def crop_frame(self,frame, y1,y2,x1,x2):
         
-        return img[y1:y2, x1:x2]
-         
+        cropped_frame = utils.crop_image(frame,y1,y2,x1,x2)
+        cropped_h, cropped_w = cropped_frame.shape[:2]
+        
+        return cropped_frame, cropped_h, cropped_w
+
+        

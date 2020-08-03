@@ -22,3 +22,9 @@ class MouseController:
 
     def getCurrentMousePosition(self):
         return pyautogui.position()
+
+    def getScreenSize(self):
+        width, height= pyautogui.size()
+        
+        return width, height
+

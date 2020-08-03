@@ -45,7 +45,7 @@ class Model:
 
     def get_input_blob(self):
 
-        print(type(next(iter(self.net.inputs))), next(iter(self.net.inputs)) )
+        #print(type(next(iter(self.net.inputs))), next(iter(self.net.inputs)) )
         return self.input_blob 
 
     def get_output_blob(self):
