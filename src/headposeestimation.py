@@ -7,12 +7,10 @@ import math as m
 class headPoseEstimation():
 
     def __init__(self, MODEL_PATH, DEVICE):
-        #super().__init__()
+        
         self.model_loaded = Model(MODEL_PATH, DEVICE)
         self.model_loaded.get_unsupported_layer()
-        #model_name =  self.model_loaded.get_model_name()
-        #print("log[info]: Model input shape " + model_name +" ", self.model_loaded.get_input_shape())
-        #print("log[info]: Model output shape " + model_name +" ", self.model_loaded.get_output_shape())
+
         self.initial_w = None
         self.initial_h = None
         self.frame = None

@@ -28,11 +28,11 @@ class Model:
 
         try:
             self.net = self.ie.read_network(model=self.model_structure, weights=self.model_weights)
-            self.layers_map = self.ie.query_network(network=self.net, device_name=device_name)
-       
         except Exception as e:
             raise ValueError("Could not Initialise the network. Have you enterred the correct model path?", e)
                 
+        self.layers_map = self.ie.query_network(network=self.net, device_name=device_name)
+
         self.input_blob = list(self.net.inputs.keys()) 
         self.output_blob = list(self.net.outputs.keys())
         
@@ -94,7 +94,7 @@ class Model:
         
         if len(not_supported_layers) != 0: 
             log.error("Following layers are not supported by the plugin for specified device {}:\n {}".
-                      format(self.device, ', '.join(not_supported_layers)))
+                      format(self.device, ', '.join(not_supported_layers)))        
         else:
             log.info("All layers are supported!")
 

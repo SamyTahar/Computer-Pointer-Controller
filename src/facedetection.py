@@ -8,9 +8,11 @@ import utils
 class FaceDetection():
 
     def __init__(self, MODEL_PATH, DEVICE):
-        #super().__init__()
+        
         self.model_loaded = Model(MODEL_PATH, DEVICE)
         self.model_loaded.get_unsupported_layer()
+
+        
         #model_name =  self.model_loaded.get_model_name()
         #print("log[info]: Model input shape " + model_name +" ", self.model_loaded.get_input_shape())
         #print("log[info]: Model output shape " + model_name +" ", self.model_loaded.get_output_shape())
@@ -22,9 +24,6 @@ class FaceDetection():
         self.threshold = None
 
         self.image_input_shape = self.model_loaded.get_input_shape()
-
-        #print("input_names:", inputs,  "inputs_shape: ",inputs_shape)
-        #print("output_names:", outputs, "outputs_shape: ",outputs_shape)
     
         
     def set_params(self, frame, threshold, initial_w, initial_h):
@@ -51,7 +50,6 @@ class FaceDetection():
         return self.model_loaded.get_output_blob()    
     
     def preprocess_frame(self, frame):
-        #print("frame_shape: ",frame.shape, "self.image_input_shape[0][3]: ", self.image_input_shape[0][3], "self.image_input_shape[0][2]: ", self.image_input_shape[0][2])
         resize_frame = cv2.resize(frame, (self.image_input_shape[0][3], self.image_input_shape[0][2]), interpolation=cv2.INTER_AREA)
         resize_frame = resize_frame.transpose((2,0,1))
         resize_frame = resize_frame.reshape(1, *resize_frame.shape)

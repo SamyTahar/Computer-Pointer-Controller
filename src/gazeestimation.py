@@ -7,7 +7,7 @@ import math as m
 class gazeEstimation():
 
     def __init__(self, MODEL_PATH, DEVICE):
-        #super().__init__()
+        
         self.model_loaded = Model(MODEL_PATH, DEVICE)
         self.model_loaded.get_unsupported_layer()
 
@@ -45,10 +45,12 @@ class gazeEstimation():
         scale = 100
 
         inputs = self.input_blobs()
-        #print(self.left_eyes_frame.shape)
+        
         prepro_img_left_eyes = self.preprocess_frame(self.left_eyes_frame)
         prepro_img_right_eyes = self.preprocess_frame(self.right_eyes_frame)
+        
         inputs_model = {inputs[0]:self.head_pose_angle, inputs[1]:prepro_img_left_eyes, inputs[2]:prepro_img_right_eyes}
+        
         gaze_vectors = self.inference(inputs_model)
         
         center_face = (self.frame.shape[0]/2, self.frame.shape[1]/2)
