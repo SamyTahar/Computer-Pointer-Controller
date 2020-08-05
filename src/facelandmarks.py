@@ -39,11 +39,11 @@ class FaceLandmarks(Model):
         
         points = self.inference(inputs_to_feed)
 
-        coords_data_crop_l, coords_data_crop_r, data_points_marks = self.get_box_eyes_data(points, self.initial_h, self.initial_w)
+        data_l_eye, data_r_eye, data_points_marks = self.get_box_eyes_data(points, self.initial_h, self.initial_w)
                 
         left_eye_center_points, right_eye_center_points = self.get_eyes_center(points,self.initial_h, self.initial_w)
 
-        return left_eye_center_points ,right_eye_center_points, coords_data_crop_l, coords_data_crop_r, data_points_marks
+        return left_eye_center_points ,right_eye_center_points, data_l_eye, data_r_eye, data_points_marks
     
 
     def inference(self, input_data):
@@ -63,23 +63,23 @@ class FaceLandmarks(Model):
             xn,yn = point[4][0] * frame_cropped_w, point[5][0] * frame_cropped_h
 
             # make box for left eye 
-            xlmin = xl-50
-            ylmin = yl-50
-            xlmax = xl+50
-            ylmax = yl+50
+            xlmin = xl-40
+            ylmin = yl-40
+            xlmax = xl+40
+            ylmax = yl+40
             
             # make box for right eye 
-            xrmin = xr-50
-            yrmin = yr-50
-            xrmax = xr+50
-            yrmax = yr+50
+            xrmin = xr-40
+            yrmin = yr-40
+            xrmax = xr+40
+            yrmax = yr+40
 
 
-        coords_data_crop_l = int(ylmin), int(ylmax), int(xlmin), int(xlmax)
-        coords_data_crop_r = int(yrmin), int(yrmax), int(xrmin), int(xrmax)
+        data_l_eye = int(xlmin), int(ylmin), int(xlmax), int(ylmax)
+        data_r_eye = int(xrmin), int(yrmin), int(xrmax), int(yrmax)
         data_points_marks = xl, yl, xr, yr, xn, yn 
         
-        return coords_data_crop_l, coords_data_crop_r, data_points_marks
+        return data_l_eye, data_r_eye, data_points_marks
 
     def get_eye_frame_cropped(self,frame, coords_data_crop_l, coords_data_crop_r ):
         img_left_eye = utils.crop_image(frame, coords_data_crop_l[0],coords_data_crop_l[1],coords_data_crop_l[2], coords_data_crop_l[3])

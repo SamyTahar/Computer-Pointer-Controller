@@ -62,40 +62,57 @@ def main(args):
             face_Detect.set_params(frame,THRESHOLD, initial_w, initial_h)
 
             #Run facedetection inference
-            confidence, data_face_detection = face_Detect.get_inference_outputs()
+            confidence, data_face_detection_points = face_Detect.get_inference_outputs()
             
             if confidence >= THRESHOLD:
                 
                 cropped_frame, cropped_h, cropped_w = utils.crop_frame(
                                                     frame, 
-                                                    data_face_detection[1],
-                                                    data_face_detection[3],
-                                                    data_face_detection[0],
-                                                    data_face_detection[2])            
+                                                    data_face_detection_points[1],
+                                                    data_face_detection_points[3],
+                                                    data_face_detection_points[0],
+                                                    data_face_detection_points[2])            
                 
                 print(cropped_frame.shape)
                 
                 land_Marks.set_params(cropped_frame, cropped_h, cropped_w)
                 
-                left_eye_center_points, right_eye_center_points, coords_data_crop_l, coords_data_crop_r, data_points_marks = land_Marks.get_inference_outputs()
+                left_eye_center_points ,right_eye_center_points, data_l_eye, data_r_eye, data_points_marks = land_Marks.get_inference_outputs()
 
-                """
 
-                frame = land_Marks.test_get_box_eyes_points(frame, test_coords_data ,initial_w, initial_h, cropped_w, cropped_h)
-                    
+                xomin = data_face_detection_points[0]
+                yomin = data_face_detection_points[1]
+
+                img_left_eye, _, _ = utils.crop_frame(
+                                                    frame, 
+                                                    data_l_eye[1]+ yomin,
+                                                    data_l_eye[3]+ yomin,
+                                                    data_l_eye[0]+ xomin,
+                                                    data_l_eye[2]+ xomin)
+
+                img_left_eye, _, _ = utils.crop_frame(
+                                                    frame, 
+                                                    data_r_eye[1]+ yomin,
+                                                    data_r_eye[3]+ yomin,
+                                                    data_r_eye[0]+ xomin,
+                                                    data_r_eye[2]+ xomin)
+
+                
                 head_PoseEstimat.set_params(cropped_frame, cropped_w, cropped_h)
-                img_output ,head_pose_angles = head_PoseEstimat.get_inference_outputs()
-            
-                gaze_Estimation.set_params(frame, img_left_eye, img_right_eye, head_pose_angles, left_eye_center, right_eye_center, initial_w, initial_h)
-                image_output_gaze, gaze_vector_output = gaze_Estimation.get_inference_outputs()
-                """
+                head_pose_angles = head_PoseEstimat.get_inference_outputs()
+                
+                
+
+                #gaze_Estimation.set_params(frame, img_left_eye, img_right_eye, head_pose_angles, left_eye_center, right_eye_center, initial_w, initial_h)
+                #image_output_gaze, gaze_vector_output = gaze_Estimation.get_inference_outputs()
+                
                 ####
                 #eyes_concat = np.concatenate((img_left_eye,img_right_eye), axis=0)
                 #eyes_concat_resized = cv2.resize(eyes_concat,(cropped_frame.shape[1] -200 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
                 #eyes_crop_out = np.concatenate((cropped_frame, eyes_concat_resized), axis=1)
                 #display_visual = True
                
-                frame = utils.draw_visualisation(frame, data_face_detection, data_points_marks)
+                frame = utils.draw_visualisation(frame, data_face_detection_points, data_points_marks, head_pose_angles, data_l_eye, data_r_eye)
         
                 #if args.display_visual == True:
                 #    original_frame = cv2.resize(original_frame,(cropped_frame.shape[1] +400 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
@@ -109,10 +126,10 @@ def main(args):
                 #mouse_controller.move(*gaze_vector_output[:2])    
             
                 
-                #cv2.imwrite("output.jpg", image_output_gaze)
+                cv2.imwrite("output.jpg", img_left_eye)
                 #out.write(img_output)
         
-                cv2.imshow('frame',frame)
+                cv2.imshow('frame',img_left_eye)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
         else:

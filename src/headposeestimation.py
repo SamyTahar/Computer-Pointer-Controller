@@ -38,11 +38,9 @@ class headPoseEstimation():
         inputs_model = self.input_blobs()
         prepro_img_face = self.preprocess_frame(self.frame)
         inputs_to_feed = {inputs_model[0]:prepro_img_face}    
-        angles = self.inference(inputs_to_feed)
+        head_pose_angles = self.inference(inputs_to_feed)
 
-        frame = self.display_head_orientation(self.frame, angles, self.initial_w, self.initial_h)
-
-        return frame ,angles 
+        return  head_pose_angles 
     
     def preprocess_frame(self, frame):
 
@@ -54,28 +52,5 @@ class headPoseEstimation():
 
     def inference(self, input_data):
         return self.model_loaded.get_infer_output(input_data)
-    
-    def display_head_orientation(self, frame, eurler_angles,initial_w, initial_h):
-            
-        pitch = eurler_angles['angle_p_fc'][0][0]
-        roll  = eurler_angles['angle_r_fc'][0][0]
-        yaw = eurler_angles['angle_y_fc'][0][0]
-        
 
-        #x = m.cos(yaw)*m.cos(pitch)
-        #y = m.sin(yaw)*m.cos(pitch)
-        #z = m.sin(pitch)
-        center_point = [(initial_w+0)/2,(initial_h+0)/2]
-        #print(x,y,z)
-
-        print(center_point)
-
-        #line_thickness = 5
-        #frame = cv2.line(frame, (int(center_point[0]),int(center_point[1])), (int(center_point[0]), 300), (0, 255, 0), thickness=line_thickness)
-        #rame = cv2.line(frame, (int(center_point[0]),int(center_point[1])), (700, int(center_point[1])), (0, 0, 255), thickness=line_thickness)
-        #frame = cv2.line(frame, (int(center_point[0]),int(center_point[1])), (730, 450), (255, 0, 0), thickness=line_thickness)
-
-        #frame = cv2.line(frame, (x, y), (x, z), (0, 255, 0), thickness=line_thickness)
-        
-        return frame
 
