@@ -71,14 +71,11 @@ def main(args):
                                                     data_face_detection_points[1],
                                                     data_face_detection_points[3],
                                                     data_face_detection_points[0],
-                                                    data_face_detection_points[2])            
-                
-                print(cropped_frame.shape)
+                                                    data_face_detection_points[2])
                 
                 land_Marks.set_params(cropped_frame, cropped_h, cropped_w)
                 
                 left_eye_center_points ,right_eye_center_points, data_l_eye, data_r_eye, data_points_marks = land_Marks.get_inference_outputs()
-
 
                 xomin = data_face_detection_points[0]
                 yomin = data_face_detection_points[1]
@@ -90,7 +87,7 @@ def main(args):
                                                     data_l_eye[0]+ xomin,
                                                     data_l_eye[2]+ xomin)
 
-                img_left_eye, _, _ = utils.crop_frame(
+                img_right_eye, _, _ = utils.crop_frame(
                                                     frame, 
                                                     data_r_eye[1]+ yomin,
                                                     data_r_eye[3]+ yomin,
