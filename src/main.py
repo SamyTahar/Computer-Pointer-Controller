@@ -98,10 +98,10 @@ def main(args):
                 head_PoseEstimat.set_params(cropped_frame, cropped_w, cropped_h)
                 head_pose_angles = head_PoseEstimat.get_inference_outputs()
                 
-                
+                gaze_Estimation.set_params(img_left_eye, img_right_eye, head_pose_angles)
+                gaze_vector_output = gaze_Estimation.get_inference_outputs()
 
-                #gaze_Estimation.set_params(frame, img_left_eye, img_right_eye, head_pose_angles, left_eye_center, right_eye_center, initial_w, initial_h)
-                #image_output_gaze, gaze_vector_output = gaze_Estimation.get_inference_outputs()
+                print("gaze_vector_output",gaze_vector_output)
                 
                 ####
                 #eyes_concat = np.concatenate((img_left_eye,img_right_eye), axis=0)
@@ -109,7 +109,13 @@ def main(args):
                 #eyes_crop_out = np.concatenate((cropped_frame, eyes_concat_resized), axis=1)
                 #display_visual = True
                
-                frame = utils.draw_visualisation(frame, data_face_detection_points, data_points_marks, head_pose_angles, data_l_eye, data_r_eye)
+                frame = utils.draw_visualisation(frame, 
+                                                data_face_detection_points, 
+                                                data_points_marks, 
+                                                head_pose_angles, 
+                                                data_l_eye, 
+                                                data_r_eye,
+                                                gaze_vector_output)
         
                 #if args.display_visual == True:
                 #    original_frame = cv2.resize(original_frame,(cropped_frame.shape[1] +400 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
@@ -123,10 +129,10 @@ def main(args):
                 #mouse_controller.move(*gaze_vector_output[:2])    
             
                 
-                cv2.imwrite("output.jpg", img_left_eye)
+                #cv2.imwrite("output.jpg", img_left_eye)
                 #out.write(img_output)
         
-                cv2.imshow('frame',img_left_eye)
+                cv2.imshow('frame',frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
         else:
