@@ -39,9 +39,9 @@ class FaceDetection():
         inputs_face = {inputs_facedetect[0]:prepro_img_face}
         coords = self.inference(inputs_face)
 
-        frame, confidence, coords_data_crop  = self.draw_boxes(coords, self.frame, self.threshold, self.initial_w, self.initial_h)
+        confidence, data_face_detection  = self.get_box_data(coords, self.threshold, self.initial_w, self.initial_h)
         
-        return frame, confidence, coords_data_crop
+        return confidence, data_face_detection
     
     def input_blobs(self):
         return self.model_loaded.get_input_blob()
@@ -60,11 +60,11 @@ class FaceDetection():
         
         return self.model_loaded.get_infer_output(input_data)
 
-    def draw_boxes(self, coords, frame, threshold , initial_w, initial_h):
+    def get_box_data(self, coords, threshold , initial_w, initial_h):
         width = initial_w
         height = initial_h
         coords = coords['detection_out']
-        coords_data_crop = []
+        data_face_detection = []
         _confidence = 0
             
         for box in coords[0][0]: # Output shape is 1x1x200x7
@@ -77,18 +77,10 @@ class FaceDetection():
                 xmax = int(box[5] * width) + 50
                 ymax = int(box[6] * height) + 50
 
-                cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0,0,255), 10)
                 _confidence = confidence
-                coords_data_crop = ymin, ymax, xmin, xmax
+                #coords_data_crop = ymin, ymax, xmin, xmax
+                data_face_detection = xmin, ymin, xmax, ymax
 
-        return frame, _confidence, coords_data_crop 
-    
-    
-    def crop_frame(self,frame, y1,y2,x1,x2):
-        
-        cropped_frame = utils.crop_image(frame,y1,y2,x1,x2)
-        cropped_h, cropped_w = cropped_frame.shape[:2]
-        
-        return cropped_frame, cropped_h, cropped_w
+        return _confidence, data_face_detection
 
         

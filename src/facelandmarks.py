@@ -39,22 +39,22 @@ class FaceLandmarks(Model):
         
         points = self.inference(inputs_to_feed)
 
-        frame, coords_data_crop_l, coords_data_crop_r = self.get_box_eyes_points(self.frame, points, self.initial_h, self.initial_w)
-        
-        img_left_eye, img_right_eye = self.get_eye_frame_cropped(self.frame, coords_data_crop_l, coords_data_crop_r )
-        
-        left_eye_center, right_eye_center = self.get_eyes_center(points,self.initial_h, self.initial_w)
+        coords_data_crop_l, coords_data_crop_r, data_points_marks = self.get_box_eyes_data(points, self.initial_h, self.initial_w)
+                
+        left_eye_center_points, right_eye_center_points = self.get_eyes_center(points,self.initial_h, self.initial_w)
 
-        return frame, img_left_eye, img_right_eye, left_eye_center , right_eye_center
+        return left_eye_center_points ,right_eye_center_points, coords_data_crop_l, coords_data_crop_r, data_points_marks
     
 
     def inference(self, input_data):
         return self.model_loaded.get_infer_output(input_data)
          
 
-    def get_box_eyes_points(self, frame, points, frame_cropped_w, frame_cropped_h):
+    def get_box_eyes_data(self, points, frame_cropped_w, frame_cropped_h):
    
         points = points['95']
+
+        data_points_marks= []
 
         #print("points:", points[0][0])
         for point in points:
@@ -75,25 +75,11 @@ class FaceLandmarks(Model):
             yrmax = yr+50
 
 
-            #cv2.circle(frame,(xl ,yl), 1, (0,0,255), -1)
-            #cv2.circle(frame,(xr,yr), 1, (0,0,255), -1)
-            #cv2.circle(frame,(xn,yn), 1, (0,255,), -1)
-
-            #if xlmin < 0 or ylmin < 0 or xlmax < 0 or ylmax < 0:
-            #    xlmin = xlmin * xlmin
-                # regarder si pour chaque point celui-ci est négatif ou non si oui alors au square sinon rien 
-                
-            #print("lefteye_points",(xlmin, ylmin), (xlmax, ylmax))
-            #cv2.rectangle(frame, (xlmin, ylmin), (xlmax, ylmax), (0, 55, 255), 2)
-            #cv2.rectangle(frame, (xrmin, yrmin), (xrmax, yrmax), (0, 55, 255), 2)
-
-            coords_data_crop_l = int(ylmin), int(ylmax), int(xlmin), int(xlmax)
-            coords_data_crop_r = int(yrmin), int(yrmax), int(xrmin), int(xrmax)
-            #print('coords_data_crop_l: ', coords_data_crop_l)
-            #print('coords_data_crop_r: ', coords_data_crop_r)
-
+        coords_data_crop_l = int(ylmin), int(ylmax), int(xlmin), int(xlmax)
+        coords_data_crop_r = int(yrmin), int(yrmax), int(xrmin), int(xrmax)
+        data_points_marks = xl, yl, xr, yr, xn, yn 
         
-        return frame, coords_data_crop_l, coords_data_crop_r
+        return coords_data_crop_l, coords_data_crop_r, data_points_marks
 
     def get_eye_frame_cropped(self,frame, coords_data_crop_l, coords_data_crop_r ):
         img_left_eye = utils.crop_image(frame, coords_data_crop_l[0],coords_data_crop_l[1],coords_data_crop_l[2], coords_data_crop_l[3])

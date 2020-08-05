@@ -1,4 +1,7 @@
-/__pychache
 .DS_Store
-src/models/*
 output.jpg
+bin/sam.JPG
+src/__pycache__/facedetection.cpython-37.pyc
+src/__pycache__/facelandmarks.cpython-37.pyc
+src/__pycache__/gazeestimation.cpython-37.pyc
+.gitignore

@@ -24,21 +24,23 @@ MODEL_GAZE_ESTIMATION = "models/intel/gaze-estimation-adas-0002/FP16/gaze-estima
 
 def main(args):
     
-    #init classes
+    #init mouse controller class
     mouse_controller = MouseController('low','medium')
+
+    #init model classes
     face_Detect = FaceDetection(args.face_detection, args.device)
     land_Marks = FaceLandmarks(args.landmarks, args.device)
     head_PoseEstimat = headPoseEstimation(args.head_pose_estimation, args.device)
     gaze_Estimation = gazeEstimation(args.gaze_estimation, args.device)
 
-
-    print(args.path_feed)
-    #init input feeder
+    #init input feeder class
     feed = InputFeeder(input_type=args.input_feed, input_file=args.path_feed)
-    cap = feed.load_data()
-    initial_w, initial_h = feed.get_input_size()
 
-    print(initial_w, initial_h)
+    #load data input source from either image, video, cam according to the parameters passed by the user or the default one (video)
+    cap = feed.load_data()
+
+    #get the Height and width from the input source 
+    initial_w, initial_h = feed.get_input_size()
 
     #Facedetection threshold prob from args
     THRESHOLD = args.prob_threshold
@@ -50,7 +52,6 @@ def main(args):
     while(cap.isOpened()):
         ret, frame = cap.read()
         if ret==True:
-            
             #flip image
             frame = utils.flip_image_vertical(frame)
 
@@ -61,38 +62,46 @@ def main(args):
             face_Detect.set_params(frame,THRESHOLD, initial_w, initial_h)
 
             #Run facedetection inference
-            img_output, confidence, coords_data_crop = face_Detect.get_inference_outputs()
-    
+            confidence, data_face_detection = face_Detect.get_inference_outputs()
+            
             if confidence >= THRESHOLD:
                 
-                cropped_frame, cropped_h, cropped_w = face_Detect.crop_frame(
-                                                    img_output, 
-                                                    coords_data_crop[0],
-                                                    coords_data_crop[1],
-                                                    coords_data_crop[2],
-                                                    coords_data_crop[3])            
+                cropped_frame, cropped_h, cropped_w = utils.crop_frame(
+                                                    frame, 
+                                                    data_face_detection[1],
+                                                    data_face_detection[3],
+                                                    data_face_detection[0],
+                                                    data_face_detection[2])            
+                
+                print(cropped_frame.shape)
                 
                 land_Marks.set_params(cropped_frame, cropped_h, cropped_w)
-                frame, img_left_eye, img_right_eye, left_eye_center , right_eye_center = land_Marks.get_inference_outputs()
+                
+                left_eye_center_points, right_eye_center_points, coords_data_crop_l, coords_data_crop_r, data_points_marks = land_Marks.get_inference_outputs()
+
+                """
+
+                frame = land_Marks.test_get_box_eyes_points(frame, test_coords_data ,initial_w, initial_h, cropped_w, cropped_h)
                     
                 head_PoseEstimat.set_params(cropped_frame, cropped_w, cropped_h)
                 img_output ,head_pose_angles = head_PoseEstimat.get_inference_outputs()
             
                 gaze_Estimation.set_params(frame, img_left_eye, img_right_eye, head_pose_angles, left_eye_center, right_eye_center, initial_w, initial_h)
                 image_output_gaze, gaze_vector_output = gaze_Estimation.get_inference_outputs()
-            
+                """
                 ####
                 #eyes_concat = np.concatenate((img_left_eye,img_right_eye), axis=0)
                 #eyes_concat_resized = cv2.resize(eyes_concat,(cropped_frame.shape[1] -200 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
                 #eyes_crop_out = np.concatenate((cropped_frame, eyes_concat_resized), axis=1)
                 #display_visual = True
                
+                frame = utils.draw_visualisation(frame, data_face_detection, data_points_marks)
         
-                if args.display_visual == True:
-                    original_frame = cv2.resize(original_frame,(cropped_frame.shape[1] +400 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
-                    img_output = np.concatenate((original_frame,cropped_frame), axis=1)
-                else: 
-                    img_output = original_frame    
+                #if args.display_visual == True:
+                #    original_frame = cv2.resize(original_frame,(cropped_frame.shape[1] +400 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
+                #    img_output = np.concatenate((original_frame,cropped_frame), axis=1)
+                #else: 
+                #    img_output = original_frame    
                 ######
 
                 #width, height = mouse_controller.getScreenSize()
@@ -103,7 +112,7 @@ def main(args):
                 #cv2.imwrite("output.jpg", image_output_gaze)
                 #out.write(img_output)
         
-                cv2.imshow('frame',img_output)
+                cv2.imshow('frame',frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
         else:
@@ -112,25 +121,7 @@ def main(args):
     # Release everything if job is finished
     cap.release()
     out.release()
-    """
 
-
-
-    feed = InputFeeder(input_type='cam')
-    feed.load_data()
-    initial_h, initial_w = feed.get_input_size()
- 
-    for frame in feed.next_batch():
-           
-        prepro_img = faceDetect.preprocess_frame(frame)
-        coords = faceDetect.inference(prepro_img)
-        img_output = faceDetect.draw_outputs(coords, frame, 0.5 , initial_w, initial_h)
-
-        # write the flipped frame
-        feed.save_to_video(img_output)
-
-    feed.close()
-    """
 
 def build_argparser():
    
