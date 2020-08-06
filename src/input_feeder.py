@@ -47,9 +47,9 @@ class InputFeeder:
         If input_type is 'image', then it returns the same image.
         '''
         while True:
-            for _ in range(10):
-                _, frame=self.cap.read()
-            yield frame
+            for _ in range(50):
+                ret, frame=self.cap.read()
+            yield ret ,frame
 
     def save_to_video(self, frame):
         
