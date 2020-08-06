@@ -50,97 +50,98 @@ def main(args):
     out = cv2.VideoWriter('output.mp4',fourcc, 10.0, (initial_w, initial_h))
 
     while(cap.isOpened()):
-        ret, frame = cap.read()
-        if ret==True:
-            #flip image
-            frame = utils.flip_image_vertical(frame)
 
-            #copy unmodifed frame
-            original_frame = np.copy(frame)
-            
-            #Set facedetecetion parameters 
-            face_Detect.set_params(frame,THRESHOLD, initial_w, initial_h)
-
-            #Run facedetection inference
-            confidence, data_face_detection_points = face_Detect.get_inference_outputs()
-            
-            if confidence >= THRESHOLD:
-                
-                cropped_frame, cropped_h, cropped_w = utils.crop_frame(
-                                                    frame, 
-                                                    data_face_detection_points[1],
-                                                    data_face_detection_points[3],
-                                                    data_face_detection_points[0],
-                                                    data_face_detection_points[2])
-                
-                land_Marks.set_params(cropped_frame, cropped_h, cropped_w)
-                
-                left_eye_center_points ,right_eye_center_points, data_l_eye, data_r_eye, data_points_marks = land_Marks.get_inference_outputs()
-
-                xomin = data_face_detection_points[0]
-                yomin = data_face_detection_points[1]
-
-                img_left_eye, _, _ = utils.crop_frame(
-                                                    frame, 
-                                                    data_l_eye[1]+ yomin,
-                                                    data_l_eye[3]+ yomin,
-                                                    data_l_eye[0]+ xomin,
-                                                    data_l_eye[2]+ xomin)
-
-                img_right_eye, _, _ = utils.crop_frame(
-                                                    frame, 
-                                                    data_r_eye[1]+ yomin,
-                                                    data_r_eye[3]+ yomin,
-                                                    data_r_eye[0]+ xomin,
-                                                    data_r_eye[2]+ xomin)
-
-                
-                head_PoseEstimat.set_params(cropped_frame, cropped_w, cropped_h)
-                head_pose_angles = head_PoseEstimat.get_inference_outputs()
-                
-                gaze_Estimation.set_params(img_left_eye, img_right_eye, head_pose_angles)
-                gaze_vector_output = gaze_Estimation.get_inference_outputs()
-
-                print("gaze_vector_output",gaze_vector_output)
-                
-                ####
-                #eyes_concat = np.concatenate((img_left_eye,img_right_eye), axis=0)
-                #eyes_concat_resized = cv2.resize(eyes_concat,(cropped_frame.shape[1] -200 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
-                #eyes_crop_out = np.concatenate((cropped_frame, eyes_concat_resized), axis=1)
-                #display_visual = True
-               
-                frame = utils.draw_visualisation(frame, 
-                                                data_face_detection_points, 
-                                                data_points_marks, 
-                                                head_pose_angles, 
-                                                data_l_eye, 
-                                                data_r_eye,
-                                                gaze_vector_output)
+        for ret, frame in feed.next_batch():
         
-                #if args.display_visual == True:
-                #    original_frame = cv2.resize(original_frame,(cropped_frame.shape[1] +400 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
-                #    img_output = np.concatenate((original_frame,cropped_frame), axis=1)
-                #else: 
-                #    img_output = original_frame    
-                ######
+            if ret==True:
+                #flip image
+                frame = utils.flip_image_vertical(frame)
 
-                #width, height = mouse_controller.getScreenSize()
-                #currentMouseX, currentMouseY = mouse_controller.getCurrentMousePosition()
-                #mouse_controller.move(*gaze_vector_output[:2])    
-            
+                #copy unmodifed frame
+                original_frame = np.copy(frame)
                 
-                #cv2.imwrite("output.jpg", img_left_eye)
-                #out.write(img_output)
-        
-                cv2.imshow('frame',frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-        else:
-            break
-    
-    # Release everything if job is finished
-    cap.release()
-    out.release()
+                #Set facedetecetion parameters 
+                face_Detect.set_params(frame,THRESHOLD, initial_w, initial_h)
+
+                #Run facedetection inference
+                confidence, data_face_detection_points = face_Detect.get_inference_outputs()
+                
+                if confidence >= THRESHOLD:
+                    
+                    cropped_frame, cropped_h, cropped_w = utils.crop_frame(
+                                                        frame, 
+                                                        data_face_detection_points[1],
+                                                        data_face_detection_points[3],
+                                                        data_face_detection_points[0],
+                                                        data_face_detection_points[2])
+                    
+                    land_Marks.set_params(cropped_frame, cropped_h, cropped_w)
+                    
+                    left_eye_center_points ,right_eye_center_points, data_l_eye, data_r_eye, data_points_marks = land_Marks.get_inference_outputs()
+
+                    xomin = data_face_detection_points[0]
+                    yomin = data_face_detection_points[1]
+
+                    img_left_eye, _, _ = utils.crop_frame(
+                                                        frame, 
+                                                        data_l_eye[1]+ yomin,
+                                                        data_l_eye[3]+ yomin,
+                                                        data_l_eye[0]+ xomin,
+                                                        data_l_eye[2]+ xomin)
+
+                    img_right_eye, _, _ = utils.crop_frame(
+                                                        frame, 
+                                                        data_r_eye[1]+ yomin,
+                                                        data_r_eye[3]+ yomin,
+                                                        data_r_eye[0]+ xomin,
+                                                        data_r_eye[2]+ xomin)
+
+                    
+                    head_PoseEstimat.set_params(cropped_frame, cropped_w, cropped_h)
+                    head_pose_angles = head_PoseEstimat.get_inference_outputs()
+                    
+                    gaze_Estimation.set_params(img_left_eye, img_right_eye, head_pose_angles)
+                    gaze_vector_output = gaze_Estimation.get_inference_outputs()
+
+                    print("gaze_vector_output",gaze_vector_output)
+                    
+                    ####
+                    #eyes_concat = np.concatenate((img_left_eye,img_right_eye), axis=0)
+                    #eyes_concat_resized = cv2.resize(eyes_concat,(cropped_frame.shape[1] -200 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
+                    #eyes_crop_out = np.concatenate((cropped_frame, eyes_concat_resized), axis=1)
+                    #display_visual = True
+                
+
+            
+                    if args.display_visual == True:
+                        #original_frame = cv2.resize(original_frame,(cropped_frame.shape[1] +400 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
+                        #img_output = np.concatenate((original_frame,cropped_frame), axis=1)
+                        frame = utils.draw_visualisation(frame, 
+                                                    data_face_detection_points, 
+                                                    data_points_marks, 
+                                                    head_pose_angles, 
+                                                    data_l_eye, 
+                                                    data_r_eye,
+                                                    gaze_vector_output)
+                    else: 
+                        frame = original_frame    
+                
+
+                    #width, height = mouse_controller.getScreenSize()
+                    #currentMouseX, currentMouseY = mouse_controller.getCurrentMousePosition()
+                    #mouse_controller.move(*gaze_vector_output[:2])    
+                
+                    
+                    #cv2.imwrite("output.jpg", img_left_eye)
+                    #out.write(img_output)
+            
+                    cv2.imshow('frame',frame)
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+            else:
+                break
+        # Release everything if job is finished   
+        feed.close()
 
 
 def build_argparser():
