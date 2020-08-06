@@ -11,7 +11,7 @@ import cv2
 from numpy import ndarray
 
 class InputFeeder:
-    def __init__(self, input_type, input_file=None):
+    def __init__(self, input_type ,input_file=None):
         '''
         input_type: str, The type of input. Can be 'video' for video file, 'image' for image file,
                     or 'cam' to use webcam feed.
@@ -23,6 +23,7 @@ class InputFeeder:
 
         self.initial_w = None
         self.initial_h = None
+        self.out = None
 
             
     def load_data(self):
@@ -51,12 +52,13 @@ class InputFeeder:
                 ret, frame=self.cap.read()
             yield ret ,frame
 
+    def load_video_save_params(self, name_export_video='output_video.mp4' ):
+        # Define the codec and create VideoWriter object
+        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        self.out = cv2.VideoWriter(name_export_video ,fourcc, 10.0, (self.initial_w, self.initial_h))
+
     def save_to_video(self, frame):
-        
-        self.fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        self.out = cv2.VideoWriter('output.mp4',self.fourcc, 20.0, (self.initial_w,self.initial_h))
-    
-        return self.out.write(frame) 
+        self.out.write(frame) 
 
 
     def close(self):

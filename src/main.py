@@ -12,8 +12,7 @@ import math
 import utils
 from argparse import ArgumentParser
 
-#IMG = "../bin/detect_people.jpg"
-IMG = "../bin/sam.jpg"
+
 VIDEO = "../bin/demo.mp4"
 #IMG = "images/retail_image.jpg"
 MODEL_FACE_DETECTION = "models/intel/face-detection-adas-0001/FP16/face-detection-adas-0001"
@@ -39,15 +38,15 @@ def main(args):
     #load data input source from either image, video, cam according to the parameters passed by the user or the default one (video)
     cap = feed.load_data()
 
+    #load video save parameters
+    feed.load_video_save_params(name_export_video='output_video.mp4')
+
     #get the Height and width from the input source 
     initial_w, initial_h = feed.get_input_size()
 
     #Facedetection threshold prob from args
     THRESHOLD = args.prob_threshold
     
-    # Define the codec and create VideoWriter object
-    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-    out = cv2.VideoWriter('output.mp4',fourcc, 10.0, (initial_w, initial_h))
 
     while(cap.isOpened()):
 
@@ -102,8 +101,6 @@ def main(args):
                     
                     gaze_Estimation.set_params(img_left_eye, img_right_eye, head_pose_angles)
                     gaze_vector_output = gaze_Estimation.get_inference_outputs()
-
-                    print("gaze_vector_output",gaze_vector_output)
                     
                     ####
                     #eyes_concat = np.concatenate((img_left_eye,img_right_eye), axis=0)
@@ -130,12 +127,19 @@ def main(args):
                     #width, height = mouse_controller.getScreenSize()
                     #currentMouseX, currentMouseY = mouse_controller.getCurrentMousePosition()
                     #mouse_controller.move(*gaze_vector_output[:2])    
-                
-                    
-                    #cv2.imwrite("output.jpg", img_left_eye)
-                    #out.write(img_output)
-            
+
+                    #show the frame(s) in realtime
                     cv2.imshow('frame',frame)
+                    
+                    #if the user chose "image" as input will be saved 
+                    if args.input_feed == 'image':
+                        cv2.imwrite("../bin/output.jpg", frame)
+
+                    #if the user chose "video" as input will be saved 
+                    if args.input_feed =='video' or 'cam':
+                        #save the feed to video
+                        feed.save_to_video(frame)
+                    
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
             else:
@@ -161,7 +165,7 @@ def build_argparser():
                         help="Path to your Gaze estimation model with a trained model.")
 
     parser.add_argument("-i", "--input_feed", required=False, type=str, default='video',
-                        help="select your type of feed image, video file or use \"cam\" keyword to use your webcam ")
+                        help="select your type of feed \"image\", \"video\" file or use \"cam\" keyword to use your webcam ")
     
     parser.add_argument("-pf", "--path_feed", required=False, type=str, default=VIDEO,
                         help="select your image path if you have set your input to image or video path if you have set your input to video")
