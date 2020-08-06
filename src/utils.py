@@ -4,20 +4,6 @@ import cv2
 import math as m
 from decimal import Decimal
 
-def check_frame_shape_error(frame):
-    print("shape before reshape: ", frame.shape)
-    if frame.shape[0] == 0:
-        print("[info]: warning frame.shape[0] equal O changed to 1 to avoid error ") 
-        frame.resize((1,frame.shape[1]))
-        print("shape after reshape case frame.shape[1]: ", frame.shape)
-    
-    if frame.shape[1] == 0:
-        print("[info]: warning frame.shape[1] equal O changed to 1 to avoid error ")
-        frame.resize((frame.shape[0], 1)) 
-        print("shape after reshape case frame.shape[1]: ", frame.shape)
-
-    return frame
-
 def preprocess_frame(frame, image_input_shape):
 
     print("frame_shape: ",frame.shape, "self.image_input_shape[0][3]: ", image_input_shape[0][3], "self.image_input_shape[0][2]: ", image_input_shape[0][2])
@@ -50,7 +36,8 @@ def draw_visualisation(frame, data_face_detection_points, data_points_marks, hea
     # landmark points
     # Eye detection rectangles 
     # headpose estimation text function routine 
-    # TODO: Add Gaze direction viz
+    # Draw axis
+    # Gaze direction viz
 
     frame = face_detection_viz(frame, data_face_detection_points)
     #frame = landmarks_points_viz(frame, data_face_detection_points, data_points_marks)
@@ -109,14 +96,15 @@ def head_pose_angle_text(frame, head_pose_angles):
    
     position_x = 100
 
-    cv2.putText(frame, text_1, (position_x,100), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 1, cv2.LINE_AA) 
-    cv2.putText(frame, text_2 , (position_x,150), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 1, cv2.LINE_AA)
-    cv2.putText(frame, text_3 , (position_x,200), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 1, cv2.LINE_AA)   
+    cv2.putText(frame, text_1, (position_x,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1, cv2.LINE_AA) 
+    cv2.putText(frame, text_2 , (position_x,150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1, cv2.LINE_AA)
+    cv2.putText(frame, text_3 , (position_x,200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1, cv2.LINE_AA)   
 
     return frame
 
 
 def draw_axes(frame, head_pose_angles, data_face_detection_points):
+     # ref: https://www.learnopencv.com/rotation-matrix-to-euler-angles/
 
     xomin = data_face_detection_points[0]
     yomin = data_face_detection_points[1]
@@ -150,11 +138,9 @@ def draw_axes(frame, head_pose_angles, data_face_detection_points):
     Rz = np.array([[m.cos(roll), -m.sin(roll), 0],
                 [m.sin(roll), m.cos(roll), 0],
                 [0, 0, 1]])
-    # R = np.dot(Rz, Ry, Rx)
-    # ref: https://www.learnopencv.com/rotation-matrix-to-euler-angles/
-    # R = np.dot(Rz, np.dot(Ry, Rx))
+ 
     R = Rz @ Ry @ Rx
-    # print(R)
+
     camera_matrix = build_camera_matrix(center_of_face, focal_length)
     
     xaxis = np.array(([1 * scale, 0, 0]), dtype='float32').reshape(3, 1)

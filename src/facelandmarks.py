@@ -34,7 +34,7 @@ class FaceLandmarks(Model):
     def get_inference_outputs(self):
 
         inputs_model = self.input_blobs()
-        prepro_img_face = utils.preprocess_frame(utils.check_frame_shape_error(self.frame), self.image_input_shape)
+        prepro_img_face = utils.preprocess_frame(self.frame, self.image_input_shape)
         inputs_to_feed = {inputs_model[0]:prepro_img_face}
         
         points = self.inference(inputs_to_feed)
@@ -63,16 +63,16 @@ class FaceLandmarks(Model):
             xn,yn = point[4][0] * frame_cropped_w, point[5][0] * frame_cropped_h
 
             # make box for left eye 
-            xlmin = xl-40
-            ylmin = yl-40
-            xlmax = xl+40
-            ylmax = yl+40
+            xlmin = xl-50
+            ylmin = yl-50
+            xlmax = xl+50
+            ylmax = yl+50
             
             # make box for right eye 
-            xrmin = xr-40
-            yrmin = yr-40
-            xrmax = xr+40
-            yrmax = yr+40
+            xrmin = xr-50
+            yrmin = yr-50
+            xrmax = xr+50
+            yrmax = yr+50
 
 
         data_l_eye = int(xlmin), int(ylmin), int(xlmax), int(ylmax)
