@@ -11,3 +11,6 @@ src/__pycache__/gazeestimation.cpython-37.pyc
 src/__pycache__/headposeestimation.cpython-37.pyc
 src/__pycache__/model.cpython-37.pyc
 src/__pycache__/utils.cpython-37.pyc
+src/output_video.mp4
+src/models/intel/face-detection-adas-binary-0001/FP32-INT1/face-detection-adas-binary-0001.bin
+src/models/intel/face-detection-adas-binary-0001/FP32-INT1/face-detection-adas-binary-0001.xml
