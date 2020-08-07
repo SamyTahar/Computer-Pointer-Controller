@@ -4,7 +4,7 @@ This app uses 4 different models to perform your mouse cursor move according to 
 
 The first model will detect your face then your face will be analyzed to extract your eyes and head position then a vector direction makes your mouse move.
 
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Screen")
+![alt text](https://github.com/SamyTahar/Computer-Pointer-Controller/blob/master/bin/images/main_screen.png "Screen")
 
 ## Project Set Up and Installation
 
@@ -95,7 +95,7 @@ pip install -r requirements.txt
 Note that you can use the virtual env of your choice.
 
 ### Export env variable
-To avoid typing a long path to the openvino toolkit you can export the path here an example: 
+To avoid typing a long path to the openvino toolkit you can export the path here an example:
 
 ```bash
 export OPENVINO_ZOO_TOOL="/opt/intel/openvino/deployment_tools/open_model_zoo/tools/"
@@ -129,24 +129,26 @@ python main.py -i cam -dis True -mmove True
 To run the app with the default video use the following command:
 
 ```bash
-python main.py -i cam -dis True -mmove True
+python main.py -dis True -mmove True
 ```
 
-If you want to use you own video use the following command: 
+If you want to use you own video use the following command:
 
 ```bash
 python main.py -i "path/to/your/video" -dis True -mmove True
 ```
 
 If you want only to display the model output without the mouse move function use the following command:
+
 ```bash
 python main.py -i "path/to/your/video" -dis True
 ```
-or with the default video: 
+
+or with the default video:
 
 python main.py -i "path/to/your/video" -dis True  
 
-*Move your mouse cursor to the corner of your screen to stop the app. You can deactivate either the model visualization of the mouse automatic moves please refer to the Documentation section*
+**Move your mouse cursor to the corner of your screen to stop the app. You can deactivate either the model visualization of the mouse automatic moves please refer to the Documentation section**
 
 ## Documentation
 
@@ -212,9 +214,9 @@ Here some benchmarks table that shows the performance model loading and inferenc
 |   head-pose-estimation-adas-0001| FP32 | 0.049 sec| 0.066 sec per request |
 |   gaze-estimation-adas-0002| FP32 | 0.057 sec | 0.068 sec per request |
 
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Loading time")
+![alt text](https://github.com/SamyTahar/Computer-Pointer-Controller/blob/master/bin/images/time_to_load_model.png "Loading time")
 
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Inference Time")
+![alt text](https://github.com/SamyTahar/Computer-Pointer-Controller/blob/master/bin/images/inference.png "Inference Time")
 
 ## Results
 
@@ -224,7 +226,7 @@ However, regarding the inference time between FP32 and FP16 is not that obvious 
 
 Regarding the accuracy, it as a good chance that it will be less accurate when using an FP16 model or an INT8. The accuracy can be measure only with a test dataset OpenVino workbench can generate a dataset but won't be able to give the accuracy of the model without a real dataset so if you are not the model owner it will be difficult to find the right dataset at the right format.
 
-According to the data here we could mix the use of FP16 and FP32 as the loading time is not an issue we could use faceDectection FP16 model and then for others model we could use THE FP32. 
+According to the data here we could mix the use of FP16 and FP32 as the loading time is not an issue we could use faceDectection FP16 model and then for others model we could use THE FP32.
 
 ### Mac troubleshooting
 
@@ -238,8 +240,12 @@ This application failed to start because no Qt platform plugin could be initiali
 Available platform plugins are: cocoa, minimal, offscreen."
 ```
 
-try to install : pip install opencv-python-headless in your python env
+try to install in your python env the following package:
 
-*If your mouse is not moving check the Security Preferences > Security & Privacy > Privacy > Accessibility and grant your terminal.
+```bash
+pip install opencv-python-headless
+```
+
+**If your mouse is not moving check the Security Preferences > Security & Privacy > Privacy > Accessibility and grant your terminal.**
 
 Nb: Accessibility is the panel on the left hand side on the Privacy tab.
