@@ -2,6 +2,8 @@
 import cv2
 import numpy as np
 from model import Model
+import time
+import logging as log
 
 import utils
 
@@ -11,6 +13,8 @@ class FaceLandmarks(Model):
 
         self.model_loaded = Model(MODEL_PATH, DEVICE)
         self.model_loaded.get_unsupported_layer()
+
+        self.model_name = self.model_loaded.get_model_name()
 
         self.frame = None
         self.initial_w = None
@@ -33,11 +37,20 @@ class FaceLandmarks(Model):
 
     def get_inference_outputs(self):
 
+        t0 = time.perf_counter()
+        t_count = 0
+
         inputs_model = self.input_blobs()
         prepro_img_face = utils.preprocess_frame(self.frame, self.image_input_shape)
         inputs_to_feed = {inputs_model[0]:prepro_img_face}
         
+        t_start = time.perf_counter()
+
         points = self.inference(inputs_to_feed)
+
+        t_end = time.perf_counter()
+        t_count += 1
+        log.info("model {} is processed with {:0.2f} requests/sec ({:0.2} sec per request)".format(self.model_name, 1 / (t_end - t_start), t_end - t_start))
 
         data_l_eye, data_r_eye, data_points_marks = self.get_box_eyes_data(points, self.initial_h, self.initial_w)
                 

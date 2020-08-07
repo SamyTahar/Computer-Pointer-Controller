@@ -3,6 +3,8 @@ import numpy as np
 from model import Model
 import math as m
 import utils
+import time
+import logging as log
 
 
 class FaceDetection():
@@ -11,6 +13,8 @@ class FaceDetection():
         
         self.model_loaded = Model(MODEL_PATH, DEVICE)
         self.model_loaded.get_unsupported_layer()
+        
+        self.model_name = self.model_loaded.get_model_name()
 
         self.frame = None
         self.initial_w = None
@@ -29,10 +33,21 @@ class FaceDetection():
 
     def get_inference_outputs(self):
 
+        t0 = time.perf_counter()
+        t_count = 0    
+
         inputs_facedetect = self.input_blobs()
         prepro_img_face = self.preprocess_frame(self.frame)
         inputs_face = {inputs_facedetect[0]:prepro_img_face}
+
+        t_start = time.perf_counter()
+        
+        #inference
         coords = self.inference(inputs_face)
+
+        t_end = time.perf_counter()
+        t_count += 1
+        log.info("model {} is processed with {:0.2f} requests/sec ({:0.2} sec per request)".format(self.model_name, 1 / (t_end - t_start), t_end - t_start))
 
         confidence, data_face_detection  = self.get_box_data(coords, self.threshold, self.initial_w, self.initial_h)
         

@@ -3,6 +3,9 @@ import numpy as np
 from model import Model
 import math as m
 
+import time
+import logging as log
+
 
 class headPoseEstimation():
 
@@ -10,6 +13,7 @@ class headPoseEstimation():
         
         self.model_loaded = Model(MODEL_PATH, DEVICE)
         self.model_loaded.get_unsupported_layer()
+        self.model_name = self.model_loaded.get_model_name()
 
         self.initial_w = None
         self.initial_h = None
@@ -32,11 +36,21 @@ class headPoseEstimation():
         self.initial_h = initial_h
 
     def get_inference_outputs(self):
-       
+        
+        t0 = time.perf_counter()
+        t_count = 0
+
         inputs_model = self.input_blobs()
         prepro_img_face = self.preprocess_frame(self.frame)
-        inputs_to_feed = {inputs_model[0]:prepro_img_face}    
+        inputs_to_feed = {inputs_model[0]:prepro_img_face}
+        
+        t_start = time.perf_counter()
+
         head_pose_angles = self.inference(inputs_to_feed)
+
+        t_end = time.perf_counter()
+        t_count += 1
+        log.info("model {} is processed with {:0.2f} requests/sec ({:0.2} sec per request)".format(self.model_name, 1 / (t_end - t_start), t_end - t_start))
 
         return  head_pose_angles 
     

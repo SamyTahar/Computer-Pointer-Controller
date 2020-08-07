@@ -3,6 +3,9 @@ import numpy as np
 from model import Model
 import math as m
 
+import time
+import logging as log
+
 
 class gazeEstimation():
 
@@ -10,6 +13,8 @@ class gazeEstimation():
         
         self.model_loaded = Model(MODEL_PATH, DEVICE)
         self.model_loaded.get_unsupported_layer()
+
+        self.model_name = self.model_loaded.get_model_name()
 
         self.left_eyes_frame = None
         self.right_eyes_frame = None
@@ -32,6 +37,8 @@ class gazeEstimation():
 
     def get_inference_outputs(self):
 
+        t0 = time.perf_counter()
+        t_count = 0
         
         pitch = self.head_pose_angles['angle_p_fc'][0][0]
         roll = self.head_pose_angles['angle_r_fc'][0][0]
@@ -44,10 +51,18 @@ class gazeEstimation():
         prepro_img_left_eyes = self.preprocess_frame(self.left_eyes_frame)
         prepro_img_right_eyes = self.preprocess_frame(self.right_eyes_frame)
         
+       
+
         inputs_model = {inputs[0]:head_pose_angle, inputs[1]:prepro_img_left_eyes, inputs[2]:prepro_img_right_eyes}
+        
+        t_start = time.perf_counter()
         
         gaze_vectors = self.inference(inputs_model)
         
+        t_end = time.perf_counter()
+        t_count += 1
+        log.info("model {} is processed with {:0.2f} requests/sec ({:0.2} sec per request)".format(self.model_name, 1 / (t_end - t_start), t_end - t_start))
+
         return gaze_vectors['gaze_vector'][0] 
     
     def input_blobs(self):

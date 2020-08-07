@@ -12,8 +12,8 @@ import math
 import utils
 from argparse import ArgumentParser
 
-import logging
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+import logging as log
+log.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=log.DEBUG)
 #logging.basicConfig(filename='logs/app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 
 VIDEO = "../bin/demo.mp4"
@@ -29,7 +29,7 @@ def main(args):
     #init mouse controller class
     mouse_controller = MouseController('low','medium')
 
-    logging.debug('Init model classes')
+    log.debug('Init model classes')
     #init model classes
     face_Detect = FaceDetection(args.face_detection, args.device)
     land_Marks = FaceLandmarks(args.landmarks, args.device)
@@ -39,7 +39,7 @@ def main(args):
     #init input feeder class
     feed = InputFeeder(input_type=args.input_feed, input_file=args.path_feed)
 
-    logging.info('load input source ...')
+    log.info('load input source ...')
     #load data input source from either image, video, cam according to the parameters passed by the user or the default one (video)
     cap = feed.load_data()
 
@@ -52,7 +52,7 @@ def main(args):
     #Facedetection threshold prob from args
     THRESHOLD = args.prob_threshold
     
-    logging.info('Run models inferences ...')
+    log.info('Run models inferences ...')
     while(cap.isOpened()):
 
         for ret, frame in feed.next_batch():
@@ -157,7 +157,7 @@ def main(args):
                 break
         # Release everything if job is finished   
         feed.close()
-    logging.info('End inferences ...')
+    log.info('End inferences ...')
 
 def build_argparser():
    
