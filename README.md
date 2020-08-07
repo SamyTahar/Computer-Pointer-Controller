@@ -105,6 +105,8 @@ export OPENVINO_ZOO_TOOL="/opt/intel/openvino/deployment_tools/open_model_zoo/to
 
 Models are already on the repos however you can download them again via the intel model zoo in case of a new version of openvino.
 
+Put them in the bin/models/ folder and you are good to go if you want to change your model path please refer to the help.
+
 ```bash
 python $OPENVINO_ZOO_TOOL/downloader/downloader.py --name face-detection-adas-binary-0001
 
@@ -207,9 +209,10 @@ Here some benchmarks table that shows the performance model loading and inferenc
 |   head-pose-estimation-adas-0001| FP16 | 0.027 sec | 0.069 sec per request |
 |   gaze-estimation-adas-0002| FP16 | 0.031 sec | 0.079 sec per request |
 
+
 |Model name | FP | Model loading time  |  Inference Time |
 |--- |---|---|---|
-|   face-detection-adas-0001| FP32 | 0.13 sec| 0.29 sec ec per request|
+|   face-detection-adas-0001| FP32 | 0.13 sec| 0.29 sec per request|
 |   landmarks-regression-retail-0009| FP32 | 0.032 sec | 0.042 sec per request |
 |   head-pose-estimation-adas-0001| FP32 | 0.049 sec| 0.066 sec per request |
 |   gaze-estimation-adas-0002| FP32 | 0.057 sec | 0.068 sec per request |
