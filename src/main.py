@@ -18,10 +18,10 @@ log.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=log.DE
 
 VIDEO = "../bin/demo.mp4"
 
-MODEL_FACE_DETECTION = "models/intel/face-detection-adas-0001/FP16/face-detection-adas-0001"
-MODEL_LANDMARKS = "models/intel/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009"
-MODEL_HEAD_POSE_ESTIMATION = "models/intel/head-pose-estimation-adas-0001/FP16/head-pose-estimation-adas-0001"
-MODEL_GAZE_ESTIMATION = "models/intel/gaze-estimation-adas-0002/FP16/gaze-estimation-adas-0002"
+MODEL_FACE_DETECTION = "../bin/models/intel/face-detection-adas-0001/FP16/face-detection-adas-0001"
+MODEL_LANDMARKS = "../bin/models/intel/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009"
+MODEL_HEAD_POSE_ESTIMATION = "../bin/models/intel/head-pose-estimation-adas-0001/FP32/head-pose-estimation-adas-0001"
+MODEL_GAZE_ESTIMATION = "../bin/models/intel/gaze-estimation-adas-0002/FP32/gaze-estimation-adas-0002"
 
 
 def main(args):
@@ -66,8 +66,6 @@ def main(args):
                 
                 #Set facedetecetion parameters 
                 face_Detect.set_params(frame,THRESHOLD, initial_w, initial_h)
-                
-                
 
                 #Run facedetection inference
                 confidence, data_face_detection_points = face_Detect.get_inference_outputs()
@@ -121,7 +119,7 @@ def main(args):
                 
 
                     #Display visualisation according to user cli arguments 
-                    if args.display_visual == True:
+                    if args.display_visual == "True":
                         #original_frame = cv2.resize(original_frame,(cropped_frame.shape[1] +400 ,cropped_frame.shape[0]), interpolation=cv2.INTER_AREA)
                         #img_output = np.concatenate((original_frame,cropped_frame), axis=1)
                         frame = utils.draw_visualisation(frame, 
@@ -133,11 +131,6 @@ def main(args):
                                                     gaze_vector_output)
                     else: 
                         frame = original_frame    
-                
-
-                    #width, height = mouse_controller.getScreenSize()
-                    #currentMouseX, currentMouseY = mouse_controller.getCurrentMousePosition()
-                    #mouse_controller.move(*gaze_vector_output[:2])    
 
                     #show the frame(s) in realtime
                     cv2.imshow('frame',frame)
@@ -150,6 +143,10 @@ def main(args):
                     if args.input_feed =='video' or 'cam':
                         #save the feed to video
                         feed.save_to_video(frame)
+
+                    if args.mouse_move == "True":
+                        pass
+                        mouse_controller.move(*gaze_vector_output[:2])      
                     
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
@@ -191,8 +188,12 @@ def build_argparser():
                         help="Probability threshold for detections filtering"
                         "(0.8 by default)")
     
-    parser.add_argument("-dis", "--display_visual", type=bool, default=False,
+    parser.add_argument("-dis", "--display_visual", type=str, default="False",
                         help="Display marks and head position for debug purpose | Value True display on False display off (bool type keep capitals)")
+
+    parser.add_argument("-mmove", "--mouse_move", type=str, default="False",
+                        help="Activate the mouse move control by eyes mouvement")
+    
 
     return parser
 
@@ -200,4 +201,7 @@ if __name__ == '__main__':
     # Grab command line args
 
     args = build_argparser().parse_args()
+
+    log.info(f"args {args}")
+
     main(args)
