@@ -49,7 +49,7 @@ optional arguments:
                         Path to your Gaze estimation model with a trained
                         model.
   -i INPUT_FEED, --input_feed INPUT_FEED
-                        select your type of feed image, video file or use
+                        select your type of feed "image", "video" file or use
                         "cam" keyword to use your webcam
   -pf PATH_FEED, --path_feed PATH_FEED
                         select your image path if you have set your input to
@@ -64,7 +64,8 @@ optional arguments:
                         default)
   -dis DISPLAY_VISUAL, --display_visual DISPLAY_VISUAL
                         Display marks and head position for debug purpose |
-                        Value True display on False display off (bool type keep capitals)
+                        Value True display on False display off (bool type
+                        keep capitals)
 ```
 
 ## Benchmarks
@@ -72,6 +73,34 @@ optional arguments:
 ```bash
 python $OPENVINO_benchmark_tool/benchmark_app.py -m <model> -i <input> -d CPU
 ```
+
+```bash
+INFO - model face-detection-adas-0001 is processed with 4.36 requests/sec (0.23 sec per request)
+INFO - model landmarks-regression-retail-0009 is processed with 21.19 requests/sec (0.047 sec per request)
+INFO - model head-pose-estimation-adas-0001 is processed with 14.44 requests/sec (0.069 sec per request)
+INFO - model gaze-estimation-adas-0002 is processed with 12.68 requests/sec (0.079 sec per request)
+```
+
+|Model name |   FP precision| FLOP  |  Inference Time |
+|--- |---|---|---|
+|   face-detection-adas-0001| FP16 | X | 0.23 sec per request|
+|   landmarks-regression-retail-0009| FP16 | X | 0.047 sec per request |
+|   head-pose-estimation-adas-0001| FP16 | X | 0.069 sec per request |
+|   gaze-estimation-adas-0002| FP16 | X | 0.079 sec per request |
+
+```bash
+INFO - model face-detection-adas-0001 is processed with 3.44 requests/sec (0.29 sec per request)
+INFO - model landmarks-regression-retail-0009 is processed with 23.70 requests/sec (0.042 sec per request)
+INFO - model head-pose-estimation-adas-0001 is processed with 15.26 requests/sec (0.066 sec per request)
+INFO - model gaze-estimation-adas-0002 is processed with 14.72 requests/sec (0.068 sec per request)
+```
+
+|Model name |   FP precision| FLOP  |  Inference Time |
+|--- |---|---|---|
+|   face-detection-adas-0001| FP32 | X | 0.29 sec per request|
+|   landmarks-regression-retail-0009| FP32 | X | 0.042 sec per request |
+|   head-pose-estimation-adas-0001| FP32 | X | 0.066 sec per request |
+|   gaze-estimation-adas-0002| FP32 | X | 0.068 sec per request |
 
 *TODO:* Include the benchmark results of running your model on multiple hardwares and multiple model precisions. Your benchmarks can include: model loading time, input/output processing time, model inference time etc.
 
