@@ -5,8 +5,6 @@ import math as m
 from decimal import Decimal
 
 def preprocess_frame(frame, image_input_shape):
-
-    print("frame_shape: ",frame.shape, "self.image_input_shape[0][3]: ", image_input_shape[0][3], "self.image_input_shape[0][2]: ", image_input_shape[0][2])
     
     resize_frame = cv2.resize(frame, (image_input_shape[0][3], image_input_shape[0][2]), interpolation=cv2.INTER_AREA)
     resize_frame = resize_frame.transpose((2,0,1))
@@ -74,7 +72,6 @@ def eye_detection_viz(frame, data_face_detection_points, data_l_eye, data_r_eye)
     xlmin, ylmin, xlmax, ylmax = data_l_eye[0], data_l_eye[1], data_l_eye[2], data_l_eye[3]
     xrmin, yrmin, xrmax, yrmax = data_r_eye[0], data_r_eye[1], data_r_eye[2], data_r_eye[3]
 
-    print( "xlmin, ylmin, xlmax, ylmax", xlmin, ylmin, xlmax, ylmax)
     cv2.rectangle(frame, (xlmin + xomin, ylmin + yomin), (xlmax + xomin , ylmax + yomin), (0, 55, 255), 2)	
     cv2.rectangle(frame, (xrmin + xomin, yrmin + yomin), (xrmax + xomin, yrmax + yomin), (0, 55, 255), 2)
 
@@ -209,7 +206,7 @@ def draw_gaze_direction(frame, gaze_vector, data_points_marks, data_face_detecti
     yr1 = int(right_eye_center[1] + yomin)
 
     x, y = gaze_vector[:2]
-    print("gaze x, y: ", x, y)
+    
     frame = cv2.line(frame, (xl1,yl1), (int(xl1+x*300), int(yl1-y*300)), (238, 130, 238), 2)
     frame = cv2.line(frame, (xr1,yr1), (int(xr1+x*300), int(yr1-y*300)), (238, 130, 238), 2)
     return  frame
