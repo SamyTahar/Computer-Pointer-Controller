@@ -69,6 +69,10 @@ optional arguments:
 
 ## Benchmarks
 
+```bash
+python $OPENVINO_benchmark_tool/benchmark_app.py -m <model> -i <input> -d CPU
+```
+
 *TODO:* Include the benchmark results of running your model on multiple hardwares and multiple model precisions. Your benchmarks can include: model loading time, input/output processing time, model inference time etc.
 
 ## Results
