@@ -56,7 +56,7 @@ class FaceLandmarks(Model):
 
         data_points_marks= []
 
-        #print("points:", points[0][0])
+    
         for point in points:
             xl,yl = point[0][0] * frame_cropped_w, point[1][0] * frame_cropped_h
             xr,yr = point[2][0] * frame_cropped_w, point[3][0] * frame_cropped_h
@@ -91,7 +91,7 @@ class FaceLandmarks(Model):
     def get_eyes_center(self, points,frame_cropped_w, frame_cropped_h):
         points = points['95']
 
-        #print("points:", points[0][0])
+        
         for point in points:
             xl,yl = point[0][0] * frame_cropped_w, point[1][0] * frame_cropped_h
             xr,yr = point[2][0] * frame_cropped_w, point[3][0] * frame_cropped_h

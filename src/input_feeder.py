@@ -60,7 +60,6 @@ class InputFeeder:
     def save_to_video(self, frame):
         self.out.write(frame) 
 
-
     def close(self):
         '''
         Closes the VideoCapture.
@@ -68,4 +67,3 @@ class InputFeeder:
         if not self.input_type=='image':
             self.cap.release()
             self.out.release()
-

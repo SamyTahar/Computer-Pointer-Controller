@@ -25,16 +25,10 @@ class gazeEstimation():
     
         
     def set_params(self, left_eyes_frame, right_eyes_frame, head_pose_angles):
-        
-        #print(head_pose_angle)
-        #self.frame = frame
 
         self.left_eyes_frame = left_eyes_frame
         self.right_eyes_frame = right_eyes_frame
         self.head_pose_angles = head_pose_angles
-
-        #self.initial_w = initial_w
-        #self.initial_h = initial_h
 
     def get_inference_outputs(self):
 

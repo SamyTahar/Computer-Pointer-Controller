@@ -18,13 +18,11 @@ class headPoseEstimation():
         self.image_input_shape = self.model_loaded.get_input_shape()
 
     def input_blobs(self):
-
-        print(self.model_loaded.get_input_blob())
+        
         return self.model_loaded.get_input_blob()
 
     def output_blobs(self):
 
-        print(self.model_loaded.get_output_blob())
         return self.model_loaded.get_output_blob() 
 
     def set_params(self, frame, initial_w, initial_h):
