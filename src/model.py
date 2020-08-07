@@ -6,6 +6,7 @@ This has been provided just to give you an idea of how to structure your model c
 from openvino.inference_engine import IECore
 import logging as log
 import numpy as np
+import ntpath
 
 class Model:
     '''
@@ -15,11 +16,13 @@ class Model:
         '''
         TODO: Use this to set your instance variables. model_name, device='CPU', extensions=None
         '''
-        self.ie = IECore()
-        self.extension = extensions
 
+        self.ie = IECore()
+        self.extension = extensions 
         self.model_structure=model_name+'.xml'
-        self.model_weights=model_name+'.bin'      
+        self.model_weights=model_name+'.bin'
+
+        _ , self.model_name = self.path_leaf(model_name)      
         
         self.device = device_name
         self.net = None
@@ -36,16 +39,14 @@ class Model:
         self.input_blob = list(self.net.inputs.keys()) 
         self.output_blob = list(self.net.outputs.keys())
         
-        self.input_shape = None #self.net.inputs[self.input_blob].shape
-        self.output_shape = None #self.net.outputs[self.output_blob].shape
+        self.input_shape = None 
+        self.output_shape = None 
 
     
     def load_model(self):
         return self.net
 
     def get_input_blob(self):
-
-        #print(type(next(iter(self.net.inputs))), next(iter(self.net.inputs)) )
         return self.input_blob 
 
     def get_output_blob(self):
@@ -96,42 +97,17 @@ class Model:
             log.error("Following layers are not supported by the plugin for specified device {}:\n {}".
                       format(self.device, ', '.join(not_supported_layers)))        
         else:
-            log.info("All layers are supported!")
+            log.info(f"All layers are supported for {self.model_name} model!")
 
     def get_model_name(self):
         return self.model_structure
 
     def get_openvino_version(self, device_name):
         return self.ie.get_versions(device_name)
+
+    def get_model_name(self):
+        return self.model_name    
     
-"""     def load_model(self):
-        '''
-        TODO: You will need to complete this method.
-        This method is for loading the model to the device specified by the user.
-        If your model requires any Plugins, this is where you can load them.
-        '''
-        raise NotImplementedError
-
-    def predict(self, image):
-        '''
-        TODO: You will need to complete this method.
-        This method is meant for running predictions on the input image.
-        '''
-        raise NotImplementedError
-
-    def check_model(self):
-        raise NotImplementedError
-
-    def preprocess_input(self, image):
-    '''
-    Before feeding the data into the model for inference,
-    you might have to preprocess it. This function is where you can do that.
-    '''
-        raise NotImplementedError
-
-    def preprocess_output(self, outputs):
-    '''
-    Before feeding the output of this model to the next model,
-    you might have to preprocess the output. This function is where you can do that.
-    '''
-        raise NotImplementedError """
+    def path_leaf(self, path):
+        tail, head = ntpath.split(path)
+        return tail, ntpath.basename(head)
