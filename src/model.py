@@ -7,6 +7,7 @@ from openvino.inference_engine import IECore
 import logging as log
 import numpy as np
 import ntpath
+import time
 
 class Model:
     '''
@@ -28,9 +29,15 @@ class Model:
         self.net = None
         self.layers_map = None
         self.exec_net = None
-
+  
         try:
+            t_start = time.perf_counter()
             self.net = self.ie.read_network(model=self.model_structure, weights=self.model_weights)
+            
+            t_end = time.perf_counter()
+          
+            log.info("model {} is processed with loading {:0.2} sec per request)".format(self.model_name, t_end - t_start))
+        
         except Exception as e:
             raise ValueError("Could not Initialise the network. Have you enterred the correct model path?", e)
                 
